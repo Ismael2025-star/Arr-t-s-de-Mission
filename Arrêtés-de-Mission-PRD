@@ -1,0 +1,155 @@
+#fetch https://tailwindcss.com/docs/installation/using-vite install tailwindcss follow the instructions exactly and install reactjs using
+
+https://expressjs.com/en/starter/installing.html
+
+Product Requirements Document (PRD)
+
+Project Name: Système de Gestion et d'Approbation des Arrêtés de Mission
+
+Version: 1.2
+Date: 26 mai 2025
+Author: Ismael Youssouf Ladieh, Équipe de Développement DSI
+
+1. Introduction
+
+This document outlines the requirements for a web-based "Arrêté de Mission" (Mission Order) document management and approval system for the Administration Ministry Office. The system aims to digitalize the current paper-based process, improve efficiency, enhance transparency, and provide better tracking of mission orders and associated financial allocations.
+
+1.1. Purpose
+To detail the functional and non-functional requirements for the custom-built web application, ensuring all stakeholders have a clear understanding of the system's scope, features, and expected behavior.
+
+1.2. Scope
+This system will cover the entire lifecycle of an "Arrêté de Mission" document from reception and data input by a secretary to approval by the Minister and viewing by responsible authorities. It includes custom document storage on a local file system, user management, and a robust approval workflow.
+
+1.3. Target Audience
+
+Primary Users:
+Secrétaires (saisie des documents, numérisation, initiation) / Secretaries (document input, scanning, initiation)
+Ministre / Autorités d'approbation (révision, approbation, rejet) / Minister / Approving Authorities (review, approval, rejection)
+Autorités responsables (ex: Finances, RH - consultation, rapports) / Responsible Authorities (e.g., Finance, HR - viewing, reporting)
+Secondary Users:
+Administrateurs système (gestion des utilisateurs, configuration) / System Administrators (user management, configuration)
+2. Goals and Objectives
+
+Streamliner le Flux de Travail : Réduire l'effort manuel et les processus papier pour la gestion des "Arrêtés de Mission". / Streamline Workflow: Reduce manual effort and paper-based processes for "Arrêté de Mission" management.
+Améliorer l'Efficacité : Accélérer le processus d'approbation des ordres de mission. / Improve Efficiency: Expedite the approval process for mission orders.
+Renforcer la Transparence : Offrir une visibilité claire sur le statut de chaque ordre de mission. / Enhance Transparency: Provide clear visibility into the status of each mission order.
+Gestion Précise des Données : Centraliser les données des ordres de mission, réduisant les erreurs de saisie manuelle. / Accurate Data Management: Centralize mission order data, reducing errors from manual entry.
+Stockage Sécurisé des Documents : Assurer un stockage sûr et accessible des ordres de mission numérisés sur un système de fichiers local désigné. / Secure Document Storage: Ensure safe and accessible storage of scanned mission orders on a designated local file system.
+Accessibilité : Permettre au personnel pertinent de consulter les détails des ordres de mission depuis n'importe quel emplacement autorisé au sein du réseau du bureau. / Accessibility: Allow relevant personnel to view mission order details from any authorized location within the office network.
+3. Functional Requirements
+
+3.1. User Management & Authentication / Gestion des Utilisateurs et Authentification
+
+FR.1.1: The system MUST allow users to log in securely using a username and password. / Le système DOIT permettre aux utilisateurs de se connecter en toute sécurité à l'aide d'un nom d'utilisateur et d'un mot de passe.
+FR.1.2: The system MUST support distinct user roles: Secretary, Minister/Approver, Responsible Authority, and Administrator. / Le système DOIT prendre en charge des rôles d'utilisateur distincts : Secrétaire, Ministre/Approbateur, Autorité Responsable et Administrateur.
+FR.1.3: The system MUST enforce role-based access control (RBAC), ensuring users only access features relevant to their role. / Le système DOIT appliquer un contrôle d'accès basé sur les rôles (RBAC), garantissant que les utilisateurs n'accèdent qu'aux fonctionnalités pertinentes pour leur rôle.
+FR.1.4: Administrators MUST be able to create, edit, activate, and deactivate user accounts and assign roles. / Les administrateurs DOIVENT pouvoir créer, modifier, activer et désactiver les comptes d'utilisateur et attribuer des rôles.
+FR.1.5: The system MUST hash and salt user passwords for security. / Le système DOIT hacher et saler les mots de passe des utilisateurs pour des raisons de sécurité.
+3.2. Document Submission & Data Entry (Secretary Role) / Soumission de Documents et Saisie de Données (Rôle de la Secrétaire)
+
+FR.2.1: The system MUST provide a web form for secretaries to input all data points from the "Arrêté de Mission" form (Intitulé de la mission, Dates, Lieu, Montant alloué par personne, Nom/Fonction du Financier). / Le système DOIT fournir un formulaire web permettant aux secrétaires de saisir tous les points de données du formulaire "Arrêté de Mission".
+FR.2.2: The form MUST allow secretaries to dynamically add multiple "Personnes Concernées" (Ministère, Direction, Nom, Fonction, Début, Fin) to a single mission order. / Le formulaire DOIT permettre aux secrétaires d'ajouter dynamiquement plusieurs "Personnes Concernées" à un même ordre de mission.
+FR.2.3: The form MUST automatically calculate and display the "Total" allocation based on "Montant alloué par personne" and the number of participants. / Le formulaire DOIT calculer et afficher automatiquement l'allocation "Totale" basée sur le "Montant alloué par personne" et le nombre de participants.
+FR.2.4: The system MUST allow secretaries to upload a scanned PDF or image file (e.g., JPEG, PNG) of the physical "Arrêté de Mission" document. / Le système DOIT permettre aux secrétaires de télécharger un fichier PDF numérisé ou une image du document physique "Arrêté de Mission".
+FR.2.5: Upon form submission, the system MUST save all data to the database and store the scanned document on the designated local file system. / Lors de la soumission du formulaire, le système DOIT enregistrer toutes les données dans la base de données et stocker le document numérisé sur le système de fichiers local désigné.
+FR.2.6: The system MUST set the initial status of a newly submitted mission order to 'En attente d'approbation (Ministre)'. / Le système DOIT définir le statut initial d'un ordre de mission nouvellement soumis à 'En attente d'approbation (Ministre)'.
+FR.2.7: The system MUST automatically assign the relevant Minister/Approver for the initial approval step. / Le système DOIT automatiquement attribuer le Ministre/Approbateur pertinent pour l'étape d'approbation initiale.
+3.3. Document Workflow & Approval (Minister/Approver Role) / Flux de Travail des Documents et Approbation (Rôle du Ministre/Approbateur)
+
+FR.3.1: Approvers MUST have a dashboard showing all mission orders pending their approval. / Les approbateurs DOIVENT disposer d'un tableau de bord affichant tous les ordres de mission en attente de leur approbation.
+FR.3.2: Approvers MUST be able to view the full details of any mission order pending their approval. / Les approbateurs DOIVENT pouvoir consulter tous les détails de tout ordre de mission en attente de leur approbation.
+FR.3.3: Approvers MUST be able to view the scanned document directly within the application (embedded PDF viewer recommended). / Les approbateurs DOIVENT pouvoir visualiser le document numérisé directement dans l'application (visionneuse PDF intégrée recommandée).
+FR.3.4: Approvers MUST be able to "Approuver" (Approve) or "Rejeter" (Reject) a mission order. / Les approbateurs DOIVENT pouvoir "Approuver" ou "Rejeter" un ordre de mission.
+FR.3.5: Approvers MUST be able to add comments when approving or rejecting a mission order. / Les approbateurs DOIVENT pouvoir ajouter des commentaires lors de l'approbation ou du rejet d'un ordre de mission.
+FR.3.6: Upon approval, the system MUST transition the document's status to the next stage (e.g., 'Approuvé', 'En attente de paiement'). / Lors de l'approbation, le système DOIT faire passer le statut du document à l'étape suivante (par exemple, 'Approuvé', 'En attente de paiement').
+FR.3.7: Upon rejection, the system MUST transition the document's status to 'Rejeté'. / En cas de rejet, le système DOIT faire passer le statut du document à 'Rejeté'.
+FR.3.8: The system MUST maintain an immutable audit trail (Approval History) for all approval/rejection actions, including who performed the action, when, and any comments. / Le système DOIT maintenir un journal d'audit immuable (Historique d'approbation) pour toutes les actions d'approbation/rejet, incluant l'auteur de l'action, la date et les commentaires.
+3.4. Document Viewing & Tracking (All Roles, based on permissions) / Consultation et Suivi des Documents (Tous les Rôles, selon les permissions)
+
+FR.4.1: Users MUST be able to view the details and current status of mission orders relevant to their role. / Les utilisateurs DOIVENT pouvoir consulter les détails et le statut actuel des ordres de mission pertinents pour leur rôle.
+FR.4.2: Secretaries MUST be able to track the status of mission orders they have submitted. / Les secrétaires DOIVENT pouvoir suivre le statut des ordres de mission qu'ils ont soumis.
+FR.4.3: Responsible Authorities MUST be able to search and filter mission orders based on various criteria (e.g., mission title, dates, status, participant names, location). / Les autorités responsables DOIVENT pouvoir rechercher et filtrer les ordres de mission selon divers critères.
+FR.4.4: Users MUST be able to download the original scanned document from the system. / Les utilisateurs DOIVENT pouvoir télécharger le document numérisé original depuis le système.
+FR.4.5: The system MUST allow users to view the entire approval history for any mission order they can access. / Le système DOIT permettre aux utilisateurs de consulter l'historique complet d'approbation de tout ordre de mission auquel ils ont accès.
+3.5. Notifications
+
+FR.5.1: The system MUST send automated email notifications to the next approver when a mission order is submitted or progresses to their approval step. / Le système DOIT envoyer des notifications par e-mail automatiques au prochain approbateur lorsqu'un ordre de mission est soumis ou passe à son étape d'approbation.
+FR.5.2: The system MUST send automated email notifications to the submitter when their mission order is approved or rejected. / Le système DOIT envoyer des notifications par e-mail automatiques au soumissionnaire lorsque son ordre de mission est approuvé ou rejeté.
+FR.5.3: The system MUST provide in-app notifications/alerts on the dashboard for pending actions or status changes relevant to the user. / Le système DOIT fournir des notifications/alertes intégrées à l'application sur le tableau de bord pour les actions en attente ou les changements de statut pertinents pour l'utilisateur.
+3.6. Custom Local Document Storage / Stockage Local de Documents Personnalisé
+
+FR.6.1: The system MUST securely store uploaded documents (scanned PDFs/images) on a designated local file system accessible by the backend server. / Le système DOIT stocker en toute sécurité les documents téléchargés (PDF/images numérisés) sur un système de fichiers local désigné, accessible par le serveur backend.
+FR.6.2: The system MUST generate unique, non-guessable filenames for stored documents to prevent conflicts and ensure security. / Le système DOIT générer des noms de fichiers uniques et non devinables pour les documents stockés afin d'éviter les conflits et d'assurer la sécurité.
+FR.6.3: The system MUST associate stored documents with their corresponding mission order records in the database by storing the local file path. / Le système DOIT associer les documents stockés à leurs enregistrements d'ordre de mission correspondants dans la base de données en stockant le chemin du fichier local.
+FR.6.4: The system MUST ensure only authorized users can access or download stored documents via the backend API (direct file system access by frontend is forbidden). / Le système DOIT garantir que seuls les utilisateurs autorisés peuvent accéder ou télécharger les documents stockés via l'API backend (l'accès direct au système de fichiers par le frontend est interdit).
+FR.6.5 (Optional - Stretch Goal): The system SHOULD implement Optical Character Recognition (OCR) on uploaded documents to enable full-text search within document content. / Le système DEVRAIT implémenter la reconnaissance optique de caractères (OCR) sur les documents téléchargés pour permettre la recherche en texte intégral dans le contenu des documents.
+3.7. Multilingual Support / Support Multilingue
+
+FR.7.1: The system MUST support two primary languages: French and English. / Le système DOIT prendre en charge deux langues principales : le français et l'anglais.
+FR.7.2: Users MUST be able to switch between French and English at any time via a visible option in the user interface. / Les utilisateurs DOIVENT pouvoir basculer entre le français et l'anglais à tout moment via une option visible dans l'interface utilisateur.
+3.8. User Interface Options / Options d'Interface Utilisateur
+
+FR.8.1: The system MUST provide an option for users to switch between a light theme (default) and a dark theme (dark mode). / Le système DOIT fournir une option permettant aux utilisateurs de basculer entre un thème clair (par défaut) et un thème sombre (mode sombre).
+4. Non-Functional Requirements
+
+4.1. Performance
+
+NFR.4.1.1: The application MUST load within 3 seconds on a standard office network connection. / L'application DOIT se charger en moins de 3 secondes sur une connexion réseau de bureau standard.
+NFR.4.1.2: Document uploads MUST complete within 5 seconds for files up to 5MB, assuming the local storage is on a high-speed disk. / Les téléchargements de documents DOIVENT être terminés en moins de 5 secondes pour les fichiers jusqu'à 5 Mo, en supposant que le stockage local se trouve sur un disque à haute vitesse.
+NFR.4.1.3: Database queries for typical searches/lists MUST respond within 2 seconds. / Les requêtes de base de données pour les recherches/listes typiques DOIVENT répondre en moins de 2 secondes.
+4.2. Security
+
+NFR.4.2.1: All communication between frontend and backend MUST be secured using HTTPS. / Toutes les communications entre le frontend et le backend DOIVENT être sécurisées via HTTPS.
+NFR.4.2.2: User passwords MUST be securely hashed and salted before storage. / Les mots de passe des utilisateurs DOIVENT être hachés et salés de manière sécurisée avant le stockage.
+NFR.4.2.3: The system MUST prevent common web vulnerabilities (e.g., SQL Injection, XSS, CSRF). / Le système DOIT prévenir les vulnérabilités web courantes (par exemple, injection SQL, XSS, CSRF).
+NFR.4.2.4: The backend server MUST enforce strict file system permissions for the document storage directory, preventing unauthorized direct access. / Le serveur backend DOIT appliquer des permissions strictes sur le système de fichiers pour le répertoire de stockage des documents, empêchant l'accès direct non autorisé.
+NFR.4.2.5: The system MUST implement robust session management. / Le système DOIT implémenter une gestion robuste des sessions.
+NFR.4.2.6: Input validation MUST be performed on all user inputs to prevent malicious data. / La validation des entrées DOIT être effectuée sur toutes les entrées utilisateur pour empêcher les données malveillantes.
+4.3. Reliability & Availability / Fiabilité et Disponibilité
+
+NFR.4.3.1: The system MUST be available during office hours (e.g., 8 AM - 5 PM, Sunday - Thursday), subject to the reliability of the local server and network. / Le système DOIT être disponible pendant les heures de bureau (par exemple, 8h00 - 17h00, dimanche - jeudi), sous réserve de la fiabilité du serveur local et du réseau.
+NFR.4.3.2: A robust local backup strategy MUST be implemented for both the database and the document storage directory to minimize data loss in case of server failure or disk corruption. (Note: Local storage does not offer the inherent redundancy of cloud storage). / Une stratégie de sauvegarde locale robuste DOIT être implémentée pour la base de données et le répertoire de stockage des documents afin de minimiser la perte de données en cas de défaillance du serveur ou de corruption du disque. (Remarque : le stockage local n'offre pas la redondance inhérente au stockage cloud).
+4.4. Scalability / Évolutivité
+
+NFR.4.4.1: The system MUST be able to support up to 50 concurrent users. / Le système DOIT pouvoir prendre en charge jusqu'à 50 utilisateurs simultanés.
+NFR.4.4.2: The system MUST be able to store at least 10,000 mission order documents, assuming sufficient disk space on the local server. (Note: Scalability is limited by server hardware and network bandwidth). / Le système DOIT pouvoir stocker au moins 10 000 documents d'ordre de mission, en supposant un espace disque suffisant sur le serveur local. (Remarque : l'évolutivité est limitée par le matériel du serveur et la bande passante du réseau).
+4.5. Usability / Ergonomie
+
+NFR.4.5.1: The user interface MUST be intuitive and easy to navigate for all roles. / L'interface utilisateur DOIT être intuitive et facile à naviguer pour tous les rôles.
+NFR.4.5.2: Error messages MUST be clear and actionable. / Les messages d'erreur DOIVENT être clairs et exploitables.
+NFR.4.5.3: The system MUST provide visual feedback for long-running operations (e.g., document uploads). / Le système DOIT fournir un retour visuel pour les opérations de longue durée (par exemple, les téléchargements de documents).
+NFR.4.5.4: The translation between French and English MUST be accurate and consistent across the application. / La traduction entre le français et l'anglais DOIT être précise et cohérente dans toute l'application.
+4.6. Maintainability / Maintenabilité
+
+NFR.4.6.1: The codebase MUST be well-documented and follow established coding standards. / La base de code DOIT être bien documentée et suivre les standards de codage établis.
+NFR.4.6.2: The system SHOULD log all critical events and errors for debugging and auditing purposes. / Le système DEVRAIT enregistrer tous les événements critiques et les erreurs à des fins de débogage et d'audit.
+5. Technical Stack & Architecture / Pile Technologique et Architecture
+
+Frontend Framework: React.js
+Frontend Build Tool: Vite
+Frontend HTTP Client: Axios
+Internationalization (i18n) Library (Frontend): React-i18next (recommended for multilingual support)
+Styling/UI Components: [Choose a UI library or custom CSS framework, e.g., Material-UI, Tailwind CSS] (for theme management, including dark mode)
+Backend Framework: Express.js (Node.js)
+Database: PostgreSQL (with pg driver and an ORM like Sequelize or Knex.js)
+File Upload Middleware: Multer (for Express.js)
+Local File Storage: Node.js fs module for interacting with the local server's file system.
+Authentication: JWT (JSON Web Tokens) with bcryptjs for password hashing.
+Email Notifications: Nodemailer (or similar service integration).
+Deployment Environment: Docker containers (for both frontend and backend) deployed on a dedicated office server.
+6. Future Considerations / Phase 2 (Out of Scope for initial release)
+
+Integration with existing HR/Financial systems for beneficiary account details.
+Advanced reporting and analytics dashboards.
+Support for multiple workflow stages/approvers beyond the initial Minister approval.
+Digital Signatures integration.
+Mobile application access.
+Audit logs for all user actions (beyond just approvals).
+Transition to highly available, redundant cloud storage for documents (re-evaluation if local storage limitations become critical).
+7. Success Metrics / Indicateurs de Succès
+
+User Adoption / Adoption des Utilisateurs : > 80% of target users actively using the system within 1 month of rollout. / > 80% des utilisateurs cibles utilisant activement le système dans le mois suivant son déploiement.
+Process Efficiency / Efficacité du Processus : Reduction in average mission order approval time by X% (e.g., 50%). / Réduction du temps moyen d'approbation des ordres de mission de X% (par exemple, 50%).
+Data Accuracy / Précision des Données : Reduction in data entry errors by Y% (e.g., 90%). / Réduction des erreurs de saisie de données de Y% (par exemple, 90%).
+User Satisfaction / Satisfaction des Utilisateurs : Average user satisfaction score > 4 out of 5 in surveys. / Score moyen de satisfaction des utilisateurs > 4 sur 5 lors des enquêtes.
+System Stability / Stabilité du Système : < 2 critical incidents per month. / < 2 incidents critiques par mois.
