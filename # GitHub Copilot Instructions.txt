@@ -1,0 +1,163 @@
+# GitHub Copilot Instructions
+
+## Project Context
+
+You are working on a full-stack web application called **GED-Tresor**, built using a ReactJS frontend and a Node.js/Express backend. The backend integrates with a PostgreSQL database and stores scanned mission order documents locally. TypeORM is used as the ORM for schema management.
+
+---
+
+## Directory Structure
+
+```
+ged-tresor/
+├── backend/                # Node.js server with TypeORM
+│   ├── entities/           # TypeORM entity models
+│   ├── routes/             # Express routes
+│   ├── uploads/            # Local scanned files
+│   ├── server.js           # Main Express app
+│   └── .env                # Environment variables
+├── frontend/               # React app
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── i18n/           # react-i18next translation files
+│   │   └── services/api.ts # Axios instance
+│   ├── public/
+│   └── tailwind.config.js
+├── docker-compose.yml
+├── README.md
+└── copilot-instructions.md
+```
+
+---
+
+## Copilot Usage Scope
+
+### Frontend (React + Vite + TailwindCSS)
+
+* Suggest layout and form designs for mission input, participants, approval workflows.
+* Build multilingual UI (i18n) and theme switcher.
+* Implement paginated mission list, document viewer, filter forms.
+
+### Backend (Express + TypeORM + Multer)
+
+* Create REST endpoints for CRUD on `missions`, `participants`, `financeurs`.
+* Handle file uploads via Multer to `uploads/` directory.
+* Use JWT authentication with cookie support.
+* Validate input data.
+
+### Database (PostgreSQL + TypeORM)
+
+* Maintain normalized schema with foreign keys.
+* Use decorators for validation and relationships.
+* Enforce role-based access for endpoints.
+
+---
+
+## PostgreSQL Schema & TypeORM Mapping
+
+### Schema Overview
+
+#### missions
+
+* `id`, `title`, `start_date`, `end_date`, `location`
+
+#### participants
+
+* `id`, `mission_id`, `ministere`, `direction`, `nom`, `fonction`, `date_debut`, `date_fin`, `montant_allocated`
+
+#### financeurs
+
+* `id`, `mission_id`, `nom`, `fonction`
+
+### Entities (TypeORM)
+
+* `Mission`, `Participant`, `Financeur` with `@OneToMany`, `@ManyToOne` relations.
+* Defined in `/backend/entities/`.
+
+---
+
+## Code Behavior Notes
+
+### Backend
+
+* `/api/login` issues token with credentials (admin, finance).
+* `/api/missions` allows POST/GET for mission orders.
+* Uploaded files are stored with hashed filenames.
+* `authMiddleware` verifies JWT in cookies.
+
+### Frontend
+
+* Axios interceptors handle token injection.
+* Forms support dynamic participant rows.
+* Mission list page supports filters, export to PDF.
+
+---
+
+## Required Packages
+
+### Frontend
+
+```bash
+yarn add axios js-cookie react-router-dom jspdf i18next react-i18next tailwindcss classnames
+```
+
+### Backend
+
+```bash
+yarn add express dotenv cors axios cookie-parser multer pg typeorm reflect-metadata jsonwebtoken bcryptjs
+```
+
+---
+
+## Dev Tools
+
+* GitHub Copilot (VS Code extension)
+* PostgreSQL Client (pgAdmin, DBeaver)
+* Postman (for API testing)
+* ESLint + Prettier
+
+---
+
+## Prompt Examples for GitHub Copilot
+
+### Authentication
+
+```js
+// POST /api/login - Express route to validate user and issue JWT token in cookie
+```
+
+### File Upload
+
+```js
+// Multer middleware to store PDFs/images to uploads folder and rename with hashed filename
+```
+
+### Mission Form UI
+
+```tsx
+// React form with TailwindCSS that allows dynamically adding participant rows
+```
+
+### PDF Export
+
+```tsx
+// Export a paginated HTML table to landscape PDF using jsPDF and autoTable
+```
+
+---
+
+## Integrates with PRD Goals
+
+* Database schema matches UI for Arrêté de Mission
+* TypeORM ensures maintainable model mapping
+* Secure document upload + approval workflows
+* Real-time filter and dashboard views for each role
+
+Let me know if you'd like to add:
+
+* Sample data seeding
+* Swagger API doc
+* Auth guards for routes
+* i18n JSON examples
+* Dockerfile setup for backend/frontend
