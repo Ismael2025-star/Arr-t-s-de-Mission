@@ -9,15 +9,28 @@
 		"multer": "^2.0.0",
 		"nodemailer": "^7.0.3",
 		"pg": "^8.16.0",
-		"reflect-metadata": "^0.2.2",
-		"typeorm": "^0.3.24"
+		"reflect-metadata": "^0.2.2"
 	},
 	"devDependencies": {
+		"@types/bcryptjs": "^2.4.6",
+		"@types/cors": "^2.8.18",
+		"@types/express": "^5.0.2",
+		"@types/jsonwebtoken": "^9.0.9",
+		"@types/multer": "^1.4.12",
 		"@types/node": "^22.15.29",
+		"@types/nodemailer": "^6.4.17",
+		"ts-node": "^10.9.2",
+		"ts-node-dev": "^2.0.0",
+		"typeorm": "^0.3.24",
 		"typescript": "^5.8.3"
 	},
 	"scripts": {
 		"build": "tsc --project tsconfig.json",
-		"start": "node dist/app.js"
+		"start": "ts-node-dev --respawn --transpile-only app.ts",
+		"start:prod": "node dist/app.js",
+		"typeorm": "typeorm-ts-node-commonjs",
+		"migration:generate": "npm run typeorm migration:generate -- -d typeorm.config.ts",
+		"migration:run": "npm run typeorm migration:run -- -d typeorm.config.ts",
+		"migration:revert": "npm run typeorm migration:revert -- -d typeorm.config.ts"
 	}
 }

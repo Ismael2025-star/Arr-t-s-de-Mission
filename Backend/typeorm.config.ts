@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import dotenv from 'dotenv';
-import { User, Mission } from './src/entities/entities.js';
+import { User, Mission, Financier, Participant } from './src/entities';
 import * as process from 'process';
 
 dotenv.config();
@@ -12,9 +12,10 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  synchronize: true, // use false in production
+  synchronize: false, // set to false for production
   logging: true,
-  entities: [User, Mission],
+  entities: [User, Mission, Financier, Participant],
   migrations: ['src/migrations/**/*.ts'],
   subscribers: [],
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });

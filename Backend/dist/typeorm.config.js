@@ -39,7 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppDataSource = void 0;
 const typeorm_1 = require("typeorm");
 const dotenv_1 = __importDefault(require("dotenv"));
-const entities_js_1 = require("./src/entities/entities.js");
+const entities_1 = require("./src/entities");
 const process = __importStar(require("process"));
 dotenv_1.default.config();
 exports.AppDataSource = new typeorm_1.DataSource({
@@ -49,9 +49,10 @@ exports.AppDataSource = new typeorm_1.DataSource({
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    synchronize: true, // use false in production
+    synchronize: false, // set to false for production
     logging: true,
-    entities: [entities_js_1.User, entities_js_1.Mission],
+    entities: [entities_1.User, entities_1.Mission, entities_1.Financier, entities_1.Participant],
     migrations: ['src/migrations/**/*.ts'],
     subscribers: [],
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });
