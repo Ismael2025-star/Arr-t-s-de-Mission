@@ -27,7 +27,7 @@ export class Participant extends BaseEntity {
     @Column({ type: 'decimal', precision: 10, scale: 2 })
     montantAllocated!: number;
 
-    @ManyToOne(() => Mission, mission => mission.participants)
+    @ManyToOne(() => Mission, (mission: Mission) => mission.participants, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'missionId' })
     mission!: Mission;
 

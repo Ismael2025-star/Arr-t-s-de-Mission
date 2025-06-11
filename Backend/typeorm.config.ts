@@ -1,21 +1,18 @@
 import { DataSource } from 'typeorm';
-import dotenv from 'dotenv';
 import { User, Mission, Financier, Participant } from './src/entities';
-import * as process from 'process';
-
-dotenv.config();
+import { envConfig } from './src/config/env.config';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: envConfig.DB_HOST,
+  port: envConfig.DB_PORT,
+  username: envConfig.DB_USERNAME,
+  password: envConfig.DB_PASSWORD,
+  database: envConfig.DB_NAME,
   synchronize: false, // set to false for production
-  logging: true,
+  logging: envConfig.NODE_ENV === 'development',
   entities: [User, Mission, Financier, Participant],
   migrations: ['src/migrations/**/*.ts'],
   subscribers: [],
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: envConfig.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });

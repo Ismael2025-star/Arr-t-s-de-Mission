@@ -1,4 +1,30 @@
-import dotenv from 'dotenv';
+import { config } from 'dotenv';
+import { join } from 'path';
+
+// Load environment variables from .env file
+const result = config({ 
+  path: join(__dirname, '.env'),
+  debug: process.env.NODE_ENV === 'development'
+});
+
+if (result.error) {
+  throw new Error(`Error loading .env file: ${result.error.message}`);
+}
+
+// Validate required environment variables
+const requiredEnvVars = [
+  'DB_HOST',
+  'DB_PORT',
+  'DB_USERNAME',
+  'DB_PASSWORD',
+  'DB_NAME'
+];
+
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+if (missingEnvVars.length > 0) {
+  throw new Error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
+}
+
 import express, { Request, Response, NextFunction } from 'express';
 import type { RequestHandler } from 'express';
 import cors from 'cors';
@@ -9,13 +35,26 @@ import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
 import { AppDataSource } from './typeorm.config';
-import { User, Mission } from './src/entities';
-
-dotenv.config();
+import { User, Mission, Financier, Participant } from './src/entities';
 
 const app = express();
-app.use(cors());
+
+// Configure CORS
+app.use(cors({
+  origin: true, // Allow all origins in development
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
+
+// Error handling middleware
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
+});
 
 AppDataSource.initialize()
   .then(() => {
@@ -26,7 +65,13 @@ AppDataSource.initialize()
   });
 
 const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+if (!fs.existsSync(uploadDir)) {
+  try {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  } catch (err) {
+    console.error('Error creating uploads directory:', err);
+  }
+}
 
 const storage = multer.diskStorage({
   destination: (_req: Express.Request, _file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
@@ -106,26 +151,109 @@ const updateUser: RequestHandler = async (req, res) => {
 
 const createMission: RequestHandler = async (req, res) => {
   try {
-    const { title, start, end, location, amount, financier, personnes } = req.body;
-    const personnesArr = JSON.parse(personnes);
-    const filePath = (req as any).file ? (req as any).file.filename : null;
-    const missionRepo = AppDataSource.getRepository(Mission);
+    console.log('Received request:', req.body);
+    console.log('Received file:', req.file);
+
+    const { title, start, end, location, amount, financier: financierData, personnes } = req.body;
     
+    if (!title || !start || !end || !location || !amount || !financierData || !personnes) {
+      res.status(400).json({ message: 'Missing required fields' });
+      return;
+    }    // Parse the financier data with proper typing
+    let financierName: string;
+    let financierFunction: string;
+
+    // Handle financier data from the form
+    if (typeof financierData === 'string') {
+      // If it's a string, expect format "name,function"
+      [financierName, financierFunction] = financierData.split(',').map((s: string) => s.trim());
+      if (!financierName || !financierFunction) {
+        res.status(400).json({ 
+          message: 'Invalid financier data. Both name and function are required in format "name,function"' 
+        });
+        return;
+      }
+    } else if (typeof financierData === 'object' && financierData !== null) {
+      // If it's an object, expect {name: string, function: string}
+      financierName = financierData.name;
+      financierFunction = financierData.function;
+      if (!financierName || !financierFunction) {
+        res.status(400).json({ 
+          message: 'Invalid financier data. Both name and function are required' 
+        });
+        return;
+      }
+    } else {
+      res.status(400).json({ 
+        message: 'Invalid financier data format' 
+      });
+      return;
+    }
+    
+    // Create or find financier
+    const financierRepo = AppDataSource.getRepository(Financier);
+    let financier = await financierRepo.findOne({
+      where: { name: financierName, function: financierFunction }
+    });    if (!financier) {
+      try {
+        financier = financierRepo.create({
+          name: financierName,
+          function: financierFunction
+        });
+        await financier.save();
+      } catch (error: any) {
+        console.error('Error creating financier:', error);
+        res.status(400).json({ 
+          message: 'Error creating financier. Please ensure both name and function are provided.',
+          error: error.message 
+        });
+        return;
+      }
+    }
+
+    const personnesData = typeof personnes === 'string' ? JSON.parse(personnes) : personnes;
+    const filePath = req.file?.filename;
+    const missionRepo = AppDataSource.getRepository(Mission);
+    const participantRepo = AppDataSource.getRepository(Participant);
+    
+    // Get the current user's ID from the request
+    const userId = (req as AuthRequest).user?.id || 1; // Default to 1 for testing
+    
+    // Create the mission first
     const mission = missionRepo.create({
       title,
-      start,
-      end,
+      start: new Date(start),
+      end: new Date(end),
       location,
-      amount,
-      financier,
-      personnes: personnesArr,
+      amount: Number(amount),
+      financierId: financier.id,
+      createdById: userId,
       file: filePath,
-      status: 'pending_ministre',
-    } as Partial<Mission>);
+      status: 'pending_ministre'
+    });
 
     await missionRepo.save(mission);
+
+    // Create participants
+    const participantPromises = personnesData.map((p: any) => {
+      const participant = participantRepo.create({
+        name: p.nom,
+        ministere: p.ministere,
+        direction: p.direction,
+        function: p.fonction,
+        startDate: new Date(p.debut),
+        endDate: new Date(p.fin),
+        montantAllocated: Number(amount),
+        missionId: mission.id
+      });
+      return participantRepo.save(participant);
+    });
+
+    await Promise.all(participantPromises);
+
     res.json({ id: mission.id });
   } catch (err: any) {
+    console.error('Error creating mission:', err);
     res.status(400).json({ message: err.message });
   }
 };
@@ -182,7 +310,16 @@ const getFile: RequestHandler = (req, res) => {
 app.post('/api/login', login);
 app.get('/api/users', authenticate, getUsers);
 app.put('/api/users/:id', authenticate, updateUser);
-app.post('/api/missions', upload.single('file'), createMission);
+// Mission routes
+app.post('/api/missions', upload.single('file'), (req, res, next) => {
+  console.log('Processing file upload:', req.file); // Debug log
+  createMission(req, res, next);
+}).options('/api/missions', (req, res) => {
+  res.header('Access-Control-Allow-Methods', 'POST');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.status(200).send();
+});
+
 app.get('/api/missions', authenticate, getMissions);
 app.get('/api/missions/pending', authenticate, getPendingMissions);
 app.post('/api/missions/:id/approve', authenticate, approveMission);

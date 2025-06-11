@@ -12,7 +12,7 @@ export class Financier extends BaseEntity {
     @Column({ length: 100 })
     function!: string;
 
-    @OneToMany(() => Mission, mission => mission.financier)
+    @OneToMany(() => Mission, (mission: Mission) => mission.financier, { cascade: true })
     missions!: Mission[];
 
     @CreateDateColumn()

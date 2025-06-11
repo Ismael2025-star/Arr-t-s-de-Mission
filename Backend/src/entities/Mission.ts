@@ -33,8 +33,15 @@ export class Mission extends BaseEntity {
     @OneToMany(() => Participant, participant => participant.mission)
     participants!: Participant[];
 
+    @ManyToOne(() => User, user => user.missions)
+    @JoinColumn({ name: 'createdById' })
+    createdBy!: User;
+
+    @Column()
+    createdById!: number;
+
     @Column({ nullable: true })
-    file!: string;
+    file?: string;
 
     @Column({
         type: 'enum',
@@ -42,13 +49,6 @@ export class Mission extends BaseEntity {
         default: 'pending_ministre'
     })
     status!: string;
-
-    @ManyToOne(() => User, user => user.missions)
-    @JoinColumn({ name: 'createdById' })
-    createdBy!: User;
-
-    @Column()
-    createdById!: number;
 
     @CreateDateColumn()
     createdAt!: Date;
